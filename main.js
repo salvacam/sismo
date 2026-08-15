@@ -42,8 +42,7 @@ let app = {
 
 		  // 2. Buscamos y convertimos la fecha UTC a hora local
 		  // Busca el patrón "en la fecha DD/MM/YYYY HH:mm:ss"
-		  cleanDescription = cleanDescription.replace(
-		    /en la fecha (\d{2}\/\d{2}\/\d{4}) (\d{2}:\d{2}:\d{2})/,
+		  cleanDescription = cleanDescription.replace(/en la fecha (\d{2}\/\d{2}\/\d{4}) (\d{1,2}:\d{2}:\d{2})/,
 		    (match, fechaStr, horaStr) => {
 		      // Descomponemos la fecha (DD/MM/YYYY) y la hora (HH:mm:ss)
 		      const [dia, mes, ano] = fechaStr.split('/');
