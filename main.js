@@ -36,7 +36,7 @@ let app = {
       app.get10.checked = false;
       app.get30.checked = true;
       app.getRss.checked = false;
-      app.source = 30;
+      app.source = "30";
     }
     
     if (sourceStorage != null && sourceStorage == "rss") {
@@ -77,8 +77,8 @@ let app = {
 
   ChangeSourceRss: function() {
     app.get10.checked = false;
-    app.get30.checked = true;
-    app.getRss.checked = false;
+    app.get30.checked = false;
+    app.getRss.checked = true;
 
     app.source = "rss";
 
@@ -106,6 +106,8 @@ let app = {
     let url = app.URL_10;
     if (app.source == "30") {
       url = app.URL_30;
+    } else if (app.source == "rss") {
+      url = app.URL_RSS;
     }
 
     fetch(url)
@@ -116,52 +118,114 @@ let app = {
         return response.text();
       })
       .then(htmlText => {
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(htmlText, 'text/html');
+        if (app.source == "rss") {
 
-        let section1 = doc.getElementById('section1');
+          let parser = new DOMParser();
+          let xmlDoc = parser.parseFromString(htmlText, "text/xml");
 
-        if (app.source == "30") {
-          section1 = doc.getElementById('section2');
+          const itemsNodeList = xmlDoc.querySelectorAll("item");
+          //debugger;
+
+          const terremotos = Array.from(itemsNodeList).map(item => {
+            const link = item.querySelector("link")?.textContent || '';
+            const urlParams = new URLSearchParams(link.split('?')[1]);
+            const evento = urlParams.get('evid') || '';
+
+            const rawDescription = item.querySelector("description")?.textContent || '';
+
+            // Cadena ej: "...magnitud 2.8 en NW ARMILLA.GR en la fecha 19/08/2026 10:32:56..."
+            const regexInfo = /magnitud\s+([\d.,]+)\s+en\s+(.*?)\s+en la fecha\s+(\d{2}\/\d{2}\/\d{4})\s+(\d{1,2}:\d{2}:\d{2})/i;
+            const match = rawDescription.match(regexInfo);
+
+            let magnitud = '';
+            let localizacion = '';
+            let fechaLocal = '';
+            let horaLocal = '';
+
+            if (match) {
+              magnitud = match[1];      // "2.8"
+              localizacion = match[2];  // "NW ARMILLA.GR"
+              const fechaUTCStr = match[3]; // "19/08/2026"
+              const horaUTCStr = match[4];  // "10:32:56"
+
+              const [dia, mes, ano] = fechaUTCStr.split('/');
+              const [hora, min, seg] = horaUTCStr.split(':');
+              
+              const fechaUTC = new Date(Date.UTC(ano, mes - 1, dia, hora, min, seg));
+
+              fechaLocal = fechaUTC.toLocaleDateString('es-ES', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
+              });
+
+              horaLocal = fechaUTC.toLocaleTimeString('es-ES', {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false
+              });
+            }
+
+            return {
+              evento: evento,            // "es2026qfcyg"
+              fecha: fechaLocal,         // "19/08/2026"
+              horaLocal: horaLocal,      // "12:32" (o la correspondiente en hora local)
+              localizacion: localizacion,// "NW ARMILLA.GR"
+              magnitud: magnitud,        // "2.8"
+              linkMasInfo: link          // URL original por si necesitas el enlace
+            };
+          });
+
+          //console.log('Listado de filas/terremotos obtenidos:', terremotos);
+          app.renderData(terremotos);
+
+        } else {
+          const parser = new DOMParser();
+          const doc = parser.parseFromString(htmlText, 'text/html');
+
+          let section1 = doc.getElementById('section1');
+
+          if (app.source == "30") {
+            section1 = doc.getElementById('section2');
+          }
+
+          if (!section1) {
+            console.log('No se encontró el elemento #section1');
+            return;
+          }
+
+          let filas = section1.querySelectorAll('table tr:not(:first-child)');
+        
+          if (app.source == "30") {
+            filas = section1.querySelectorAll('table tr:nth-child(n+3)');
+          }
+
+          const terremotos = Array.from(filas).map(tr => {
+            const celdas = tr.querySelectorAll('td, th');
+            
+            if (celdas.length < 10) return null;
+
+            const fechaRaw = celdas[1]?.textContent.trim();
+            const horaUTCRaw = celdas[2]?.textContent.trim();
+
+            return {
+              evento: celdas[0]?.textContent.trim(),
+              //fecha: celdas[1]?.textContent.trim(),
+              // Aplicamos la lógica de sumar día si la hora UTC es >= 22:00
+              fecha: app.formatearFechaLocal(fechaRaw, horaUTCRaw),
+              horaUTC: celdas[2]?.textContent.trim(),
+              horaLocal: celdas[3]?.textContent.trim().substring(0, 5),
+              profundidadKm: celdas[6]?.textContent.trim(),
+              magnitud: celdas[7]?.textContent.trim(),
+              tipoMagnitud: celdas[8]?.textContent.trim(),
+              sentido: celdas[9]?.textContent.trim(),
+              localizacion: celdas[10]?.textContent.trim()
+            };
+          }).filter(item => item !== null); // Filtramos nulos si los hubiera
+
+          //console.log('Listado de filas/terremotos obtenidos:', terremotos);
+          app.renderData(terremotos);
         }
-
-        if (!section1) {
-          console.log('No se encontró el elemento #section1');
-          return;
-        }
-
-        let filas = section1.querySelectorAll('table tr:not(:first-child)');
-      
-        if (app.source == "30") {
-          filas = section1.querySelectorAll('table tr:nth-child(n+3)');
-        }
-
-        const terremotos = Array.from(filas).map(tr => {
-          const celdas = tr.querySelectorAll('td, th');
-          
-          if (celdas.length < 10) return null;
-
-          const fechaRaw = celdas[1]?.textContent.trim();
-          const horaUTCRaw = celdas[2]?.textContent.trim();
-
-          return {
-            evento: celdas[0]?.textContent.trim(),
-            //fecha: celdas[1]?.textContent.trim(),
-            // Aplicamos la lógica de sumar día si la hora UTC es >= 22:00
-            fecha: app.formatearFechaLocal(fechaRaw, horaUTCRaw),
-            horaUTC: celdas[2]?.textContent.trim(),
-            horaLocal: celdas[3]?.textContent.trim().substring(0, 5),
-            profundidadKm: celdas[6]?.textContent.trim(),
-            magnitud: celdas[7]?.textContent.trim(),
-            tipoMagnitud: celdas[8]?.textContent.trim(),
-            sentido: celdas[9]?.textContent.trim(),
-            localizacion: celdas[10]?.textContent.trim()
-          };
-        }).filter(item => item !== null); // Filtramos nulos si los hubiera
-
-        //console.log('Listado de filas/terremotos obtenidos:', terremotos);
-
-        app.renderData(terremotos);
       })
       .catch(err => {
         console.error('Error al parsear la tabla:', err);
@@ -216,12 +280,17 @@ let app = {
       let sentido = "";
       if (terremoto.sentido == "Sentido") {
         sentido = "- " + terremoto.sentido;
-      } else if (terremoto.sentido.length > 0) {
+      } else if (terremoto.sentido != null && terremoto.sentido != undefined && terremoto.sentido.length > 0) {
         sentido = "- Int. " + terremoto.sentido;
       }
 
+      let profundidad = "";
+      if (terremoto.profundidadKm != null && terremoto.profundidadKm != undefined && terremoto.profundidadKm.length > 0) {
+        profundidad = "- Prof. " + terremoto.profundidadKm;
+      }
+
       card.innerHTML = `
-          <p class="btn btn-sm">${terremoto.fecha} ${terremoto.horaLocal} - ${terremoto.localizacion}<br>Mag. <b>${terremoto.magnitud}</b> - Prof. ${terremoto.profundidadKm} Km ${sentido}</p>
+          <p class="btn btn-sm">${terremoto.fecha} ${terremoto.horaLocal} - ${terremoto.localizacion}<br>Mag. <b>${terremoto.magnitud}</b> ${profundidad} Km ${sentido}</p>
           <a href="http://www.ign.es/web/ign/portal/sis-catalogo-terremotos/-/catalogo-terremotos/detailTerremoto?evid=${terremoto.evento}" target="_blank" rel="noopener">+</a>
         `;
       app.listado.appendChild(card);
