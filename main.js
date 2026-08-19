@@ -125,7 +125,7 @@ let app = {
       }
 
       card.innerHTML = `
-          <p class="btn btn-sm">Mag. ${terremoto.magnitud} - Prof. ${terremoto.profundidadKm} Km ${sentido} <br>${terremoto.localizacion} - ${terremoto.fecha} ${terremoto.horaLocal}</p>
+          <p class="btn btn-sm">${terremoto.fecha} ${terremoto.horaLocal} - ${terremoto.localizacion}<br>Mag. <b>${terremoto.magnitud}</b> - Prof. ${terremoto.profundidadKm} Km ${sentido}</p>
           <a href="http://www.ign.es/web/ign/portal/sis-catalogo-terremotos/-/catalogo-terremotos/detailTerremoto?evid=${terremoto.evento}" target="_blank" rel="noopener">+</a>
         `;
       app.listado.appendChild(card);
