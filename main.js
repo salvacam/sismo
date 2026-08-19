@@ -3,24 +3,112 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 let app = {  
-  //URL_RSS: 'https://www.ign.es/ign/RssTools/sismologia.xml',
-  URL_RSS: 'https://www.ign.es/web/ign/portal/ultimos-terremotos/-/ultimos-terremotos/get10dias',
+  URL_RSS: 'https://www.ign.es/ign/RssTools/sismologia.xml',
+  URL_10: 'https://www.ign.es/web/ign/portal/ultimos-terremotos/-/ultimos-terremotos/get10dias',
+  URL_30: 'https://www.ign.es/web/ign/portal/ultimos-terremotos/-/ultimos-terremotos/get30dias',
 
   updateButton: document.getElementById('update'),
   listado: document.getElementById('listado'),
+  darkModeButton: document.getElementById('darkMode'),
+  bodyDiv: document.getElementById('body'),
+  get10: document.getElementById('source-10'),
+  get30: document.getElementById('source-30'),
+  getRss: document.getElementById('source-rss'),
+
+  source: 10,
 
   init: function() {
     if (app.updateButton) {
       app.updateButton.addEventListener('click', app.getData);
     }
-    app.getData();    
+
+    app.darkModeButton.addEventListener('change', app.ChangeDarkMode);    
+
+    var darkModeBool = localStorage.getItem("_sismo_dark");
+    if (darkModeBool != null && darkModeBool == "true") {
+      app.bodyDiv.classList.add('dark');
+      app.darkModeButton.checked = true;
+    }
+
+    var sourceStorage = localStorage.getItem("_sismo_source");
+
+    if (sourceStorage != null && sourceStorage == "30") {
+      app.get10.checked = false;
+      app.get30.checked = true;
+      app.getRss.checked = false;
+      app.source = 30;
+    }
+    
+    if (sourceStorage != null && sourceStorage == "rss") {
+      app.get10.checked = false;
+      app.get30.checked = false;
+      app.getRss.checked = true;
+      app.source = "rss";
+    }
+
+    app.get10.addEventListener('change', app.ChangeSource10);
+    app.get30.addEventListener('change', app.ChangeSource30);
+    app.getRss.addEventListener('change', app.ChangeSourceRss);
+    
+    app.getData();
+  },
+
+  ChangeSource10: function() {
+    app.get10.checked = true;
+    app.get30.checked = false;
+    app.getRss.checked = false;
+
+    app.source = "10";
+
+    localStorage.setItem("_sismo_source", app.source);
+    app.getData();
+  },
+
+  ChangeSource30: function() {
+    app.get10.checked = false;
+    app.get30.checked = true;
+    app.getRss.checked = false;
+
+    app.source = "30";
+
+    localStorage.setItem("_sismo_source", app.source);
+    app.getData();
+  },
+
+  ChangeSourceRss: function() {
+    app.get10.checked = false;
+    app.get30.checked = true;
+    app.getRss.checked = false;
+
+    app.source = "rss";
+
+    localStorage.setItem("_sismo_source", app.source);
+    app.getData();
+  },
+
+  ChangeDarkMode: function() {
+    var darkModeBool = false;
+    
+    if (app.bodyDiv.classList.contains('dark')) {
+      app.bodyDiv.classList.remove('dark');
+      darkModeBool = false;
+    } else {
+      app.bodyDiv.classList.add('dark');
+      darkModeBool = true;
+    }
+
+    localStorage.setItem("_sismo_dark", darkModeBool);
   },
 
   getData: function() {
-
     app.listado.innerHTML = '';
 
-    fetch(app.URL_RSS)
+    let url = app.URL_10;
+    if (app.source == "30") {
+      url = app.URL_30;
+    }
+
+    fetch(url)
       .then(response => {
         if (!response.ok) {
           throw new Error('Error en la respuesta HTTP: ' + response.status);
@@ -31,14 +119,22 @@ let app = {
         const parser = new DOMParser();
         const doc = parser.parseFromString(htmlText, 'text/html');
 
-        const section1 = doc.getElementById('section1');
+        let section1 = doc.getElementById('section1');
+
+        if (app.source == "30") {
+          section1 = doc.getElementById('section2');
+        }
 
         if (!section1) {
           console.log('No se encontró el elemento #section1');
           return;
         }
 
-        const filas = section1.querySelectorAll('table tr:not(:first-child)');
+        let filas = section1.querySelectorAll('table tr:not(:first-child)');
+      
+        if (app.source == "30") {
+          filas = section1.querySelectorAll('table tr:nth-child(n+3)');
+        }
 
         const terremotos = Array.from(filas).map(tr => {
           const celdas = tr.querySelectorAll('td, th');
