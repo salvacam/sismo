@@ -54,10 +54,11 @@ let app = {
             // Aplicamos la lógica de sumar día si la hora UTC es >= 22:00
             fecha: app.formatearFechaLocal(fechaRaw, horaUTCRaw),
             horaUTC: celdas[2]?.textContent.trim(),
-            horaLocal: celdas[3]?.textContent.trim(),//.substring(0, 5),
+            horaLocal: celdas[3]?.textContent.trim().substring(0, 5),
             profundidadKm: celdas[6]?.textContent.trim(),
             magnitud: celdas[7]?.textContent.trim(),
             tipoMagnitud: celdas[8]?.textContent.trim(),
+            sentido: celdas[9]?.textContent.trim(),
             localizacion: celdas[10]?.textContent.trim()
           };
         }).filter(item => item !== null); // Filtramos nulos si los hubiera
@@ -106,19 +107,26 @@ let app = {
   renderData: function(listaTerremotos) {
     if (!app.listado) return;
 
-
-
     listaTerremotos.forEach(terremoto => {
       const card = document.createElement('div');
       const magnitudNum = parseFloat(terremoto.magnitud.replace(',', '.'));
 
-      if (!isNaN(magnitudNum) && magnitudNum >= 2.0) {
-        card.classList.add('red');
+      if (!isNaN(magnitudNum) && magnitudNum >= 2.0 && magnitudNum < 3.0) {
+        card.classList.add('yellow');
+      } else if (!isNaN(magnitudNum) && magnitudNum >= 3.0) {
+        card.classList.add('red');      
+      }
+
+      let sentido = "";
+      if (terremoto.sentido == "Sentido") {
+        sentido = "- " + terremoto.sentido;
+      } else if (terremoto.sentido.length > 0) {
+        sentido = "- Int. " + terremoto.sentido;
       }
 
       card.innerHTML = `
-          <p class="btn btn-sm">Mag. ${terremoto.magnitud} - prof. ${terremoto.profundidadKm} Km - ${terremoto.localizacion} - ${terremoto.fecha} ${terremoto.horaLocal}</p>
-          <a href="http://www.ign.es/web/ign/portal/sis-catalogo-terremotos/-/catalogo-terremotos/detailTerremoto?evid=es2026qdhqs" target="_blank" rel="noopener">+</a>
+          <p class="btn btn-sm">Mag. ${terremoto.magnitud} - Prof. ${terremoto.profundidadKm} Km ${sentido} <br>${terremoto.localizacion} - ${terremoto.fecha} ${terremoto.horaLocal}</p>
+          <a href="http://www.ign.es/web/ign/portal/sis-catalogo-terremotos/-/catalogo-terremotos/detailTerremoto?evid=${terremoto.evento}" target="_blank" rel="noopener">+</a>
         `;
       app.listado.appendChild(card);
     });
