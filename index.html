@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sismo</title>
-    <link rel="icon" href="./icon.png">
+    <link rel="icon" href="./img/icon.png">
 
     <style type="text/css">
         /* MIN https://mincss.com/  */
@@ -17,10 +17,10 @@
         #listado{margin:0;padding:0}
         .text-center{text-align:center;}
         .content{padding:10px;}
-        @media(max-width:350px){.content{padding:5px;} label { margin-right: 15px; }}
+        @media(max-width:350px){.content{padding:5px;} label { margin-right: 15px; } #config div{padding: 10px;}}
         hr{width: 100%}
 
-        .btn{color:#000;background:#e6e6e6}.text-center{text-align:center}.text-right{text-align:right}h3{margin:5px}.header{display:flex;align-items:center;justify-content:space-around;background:#2d3e50;color:#fff;padding-left:10px;padding-right:10px;height:40px;}.justify-center{display:flex;align-items:center;justify-content:center}.justify-around{display:flex;align-items:center;justify-content:space-around;}@keyframes spinner{to{transform:rotate(360deg)}}.spinner:before{content:'';box-sizing:border-box;display:block;top:50%;left:50%;width:50px;height:50px;border-radius:50%;border:2px solid #ccc;border-top-color:#333;animation:spinner .6s linear infinite}.hide{display:none!important}#offline-warning{background:#fc0;color:#000;text-align:center;font-weight:700;padding:50px 10px}summary{cursor:pointer;font-weight:700;padding-bottom:5px;user-select:none;text-align:center;margin-bottom:10px;}body{background:#fff;color:#000;font-size:15px;}body.dark{background:#000;color:#fff}.checkbox{display:block;position:relative;padding-left:35px;margin-bottom:12px;cursor:pointer;font-size:22px;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}.checkbox input{position:absolute;opacity:0;cursor:pointer;height:0;width:0}.checkmark{position:absolute;top:0;left:10px;height:25px;width:25px;background-color:#eee}.checkbox:hover input~.checkmark{background-color:#ccc}.checkbox input:checked~.checkmark{background-color:#5d7385}.checkmark:after{content:"";position:absolute;display:none}.checkbox input:checked~.checkmark:after{display:block}.checkbox .checkmark:after{left:9px;top:5px;width:5px;height:10px;border:solid #fff;border-width:0 3px 3px 0;-webkit-transform:rotate(45deg);-ms-transform:rotate(45deg);transform:rotate(45deg)}#config{position:fixed;top:31px;left:-100%;width:100%;height: calc(100% - 31px);background:#fff;color:#000;font-size:15px;box-shadow:2px 0 5px rgb(0 0 0 / .3);overflow-y:auto;transition:left 0.3s ease;z-index:1000}body.dark #config {background:#000;color:#fff} body.dark input{background:#fff;color:#000;border:none;font-size:18px;}body input{background:#d1c7c7;;border:none;font-size:18px;}#config.show{left:0}#configToggle{cursor:pointer;z-index:1100}
+        .btn{color:#000;background:#e6e6e6}.text-center{text-align:center}.text-right{text-align:right}h3{margin:5px}.header{display:flex;align-items:center;justify-content:space-between;background:#2d3e50;color:#fff;padding-left:10px;padding-right:10px;height:40px;}.justify-center{display:flex;align-items:center;justify-content:center}.justify-around{display:flex;align-items:center;justify-content:space-around;}@keyframes spinner{to{transform:rotate(360deg)}}.spinner:before{content:'';box-sizing:border-box;display:block;top:50%;left:50%;width:50px;height:50px;border-radius:50%;border:2px solid #ccc;border-top-color:#333;animation:spinner .6s linear infinite}.hide{display:none!important}#offline-warning{background:#fc0;color:#000;text-align:center;font-weight:700;padding:50px 10px}summary{cursor:pointer;font-weight:700;padding-bottom:5px;user-select:none;text-align:center;margin-bottom:10px;}body{background:#fff;color:#000;font-size:15px;}body.dark{background:#000;color:#fff}.checkbox{display:block;position:relative;padding-left:35px;margin-bottom:12px;cursor:pointer;font-size:22px;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}.checkbox input{position:absolute;opacity:0;cursor:pointer;height:0;width:0}.checkmark{position:absolute;top:0;left:10px;height:25px;width:25px;background-color:#eee}.checkbox:hover input~.checkmark{background-color:#ccc}.checkbox input:checked~.checkmark{background-color:#5d7385}.checkmark:after{content:"";position:absolute;display:none}.checkbox input:checked~.checkmark:after{display:block}.checkbox .checkmark:after{left:9px;top:5px;width:5px;height:10px;border:solid #fff;border-width:0 3px 3px 0;-webkit-transform:rotate(45deg);-ms-transform:rotate(45deg);transform:rotate(45deg)}#config{position:fixed;top:31px;left:-100%;width:100%;height: calc(100% - 31px);background:#fff;color:#000;font-size:15px;box-shadow:2px 0 5px rgb(0 0 0 / .3);overflow-y:auto;transition:left 0.3s ease;z-index:1000}body.dark #config {background:#000;color:#fff} body.dark input{background:#fff;color:#000;border:none;font-size:18px;}body input{background:#d1c7c7;;border:none;font-size:18px;}#config.show{left:0}#configToggle{cursor:pointer;z-index:1100}#config div{padding: 20px;}
             btn:active,.btn:focus{background:#c3c3c3}
 
             #listado p { width: 80%; text-align:center; }
@@ -42,51 +42,54 @@
 
 <body id="body">
     <div class="header">
+        <div id="configToggle"><img src="./img/menu.png" alt="Config" width="30"></div>
         <div><h3 class="content-head is-center">Sismo</h3></div>
         <div><a class="btn btn-b btn-sm smooth updateButton" href="#" id="update">Update</a></div>
     </div>
 
     <div id="offline-warning" style="display:none;">Sin conexión. Comprueba tu red.</div>
 
-    <div id="listado"></div>
-                
-    <hr/>
+    <div class="row container infoText" id="config">
+        <div>
+            <label class="checkbox"> Modo oscuro
+              <input type="checkbox" name="darkMode" id="darkMode">
+              <span class="checkmark"></span>
+            </label>
+            <br>
+            Mostrar:
+            <br>
+            <br>
+            <input type="radio" id="source-10" name="source" value="10" checked>
+            <label for="source-10">Todos</label>
 
-    <div id="" class="container infoText">
-        <br>
-        <label class="checkbox">Modo oscuro
-          <input type="checkbox" name="darkMode" id="darkMode">
-          <span class="checkmark"></span>
-        </label>
-        <br>
-        <input type="radio" id="source-10" name="source" value="10" checked>
-        <label for="source-10">Todos</label>
+            <input type="radio" id="source-30" name="source" value="30">
+            <label for="source-30">Sentidos</label>
 
-        <input type="radio" id="source-30" name="source" value="30">
-        <label for="source-30">Sentidos</label>
-
-        <input type="radio" id="source-rss" name="source" value="rss">
-        <label for="source-rss">RSS</label>
-        <br>    
-        <hr/>
-        <p>Aplicación para consultar los terremotos ocurridos en España durante los últimos diez días.</p>
-        
-        <p>La aplicación necesita conexión a internet para obtener la información.</p>
-        
-        <p>Toda la información se extrae directamente de la web del 
-            <a href="https://www.ign.es/web/ign/portal/ultimos-terremotos/-/ultimos-terremotos/get10dias" target="_blank" rel="noopener"><b>Instituto Geográfico Nacional</b></a>
-        </p>
-        
-        <p>
-            <b>EXENCIÓN DE RESPONSABILIDAD:</b> 
-            <i>Esta aplicación no tiene ningún tipo de garantía. No se trata de una aplicación oficial de ningún organismo público ni asociación, sino que sirve los datos a los que cualquiera puede acceder en la web anteriormente citada. Por favor, úsala bajo tu propia responsabilidad.</i>
-        </p>
-        
-        <p>
-            Para más información&nbsp;
-            <a href="https://github.com/salvacam/sismo" target="_blank" rel="noopener">GitHub</a> </p>
-        </p>
+            <input type="radio" id="source-rss" name="source" value="rss">
+            <label for="source-rss">RSS</label>
+            <br>    
+            <hr/>
+            <p>Aplicación para consultar los terremotos ocurridos en España durante los últimos diez días.</p>
+            
+            <p>La aplicación necesita conexión a internet para obtener la información.</p>
+            
+            <p>Toda la información se extrae directamente de la web del 
+                <a href="https://www.ign.es/web/ign/portal/ultimos-terremotos/-/ultimos-terremotos/get10dias" target="_blank" rel="noopener"><b>Instituto Geográfico Nacional</b></a>
+            </p>
+            
+            <p>
+                <b>EXENCIÓN DE RESPONSABILIDAD:</b> 
+                <i>Esta aplicación no tiene ningún tipo de garantía. No se trata de una aplicación oficial de ningún organismo público ni asociación, sino que sirve los datos a los que cualquiera puede acceder en la web anteriormente citada. Por favor, úsala bajo tu propia responsabilidad.</i>
+            </p>
+            
+            <p>
+                Para más información&nbsp;
+                <a href="https://github.com/salvacam/sismo" target="_blank" rel="noopener">GitHub</a> </p>
+            </p>
+        </div>
     </div>
+
+    <div id="listado"></div>
 
     <script src="main.js"></script>
 </body>

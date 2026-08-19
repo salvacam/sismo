@@ -14,6 +14,8 @@ let app = {
   get10: document.getElementById('source-10'),
   get30: document.getElementById('source-30'),
   getRss: document.getElementById('source-rss'),
+  configToggle: document.getElementById('configToggle'),
+  config: document.getElementById('config'),
 
   source: 10,
 
@@ -49,8 +51,18 @@ let app = {
     app.get10.addEventListener('change', app.ChangeSource10);
     app.get30.addEventListener('change', app.ChangeSource30);
     app.getRss.addEventListener('change', app.ChangeSourceRss);
+
+    app.configToggle.addEventListener('click', app.ChangeConfig);   
     
     app.getData();
+  },
+
+  ChangeConfig: function() {
+    if (app.config.classList.contains('show')) {
+      app.config.classList.remove('show');
+    } else {
+      app.config.classList.add('show');
+    }
   },
 
   ChangeSource10: function() {
@@ -62,6 +74,7 @@ let app = {
 
     localStorage.setItem("_sismo_source", app.source);
     app.getData();
+    app.config.classList.remove('show');
   },
 
   ChangeSource30: function() {
@@ -73,6 +86,7 @@ let app = {
 
     localStorage.setItem("_sismo_source", app.source);
     app.getData();
+    app.config.classList.remove('show');
   },
 
   ChangeSourceRss: function() {
@@ -84,6 +98,7 @@ let app = {
 
     localStorage.setItem("_sismo_source", app.source);
     app.getData();
+    app.config.classList.remove('show');
   },
 
   ChangeDarkMode: function() {
