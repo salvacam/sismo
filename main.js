@@ -74,7 +74,6 @@ let app = {
 
     localStorage.setItem("_sismo_source", app.source);
     app.getData();
-    app.config.classList.remove('show');
   },
 
   ChangeSource30: function() {
@@ -86,7 +85,6 @@ let app = {
 
     localStorage.setItem("_sismo_source", app.source);
     app.getData();
-    app.config.classList.remove('show');
   },
 
   ChangeSourceRss: function() {
@@ -98,7 +96,6 @@ let app = {
 
     localStorage.setItem("_sismo_source", app.source);
     app.getData();
-    app.config.classList.remove('show');
   },
 
   ChangeDarkMode: function() {
@@ -115,7 +112,9 @@ let app = {
     localStorage.setItem("_sismo_dark", darkModeBool);
   },
 
-  getData: function() {
+  getData: function() {    
+    app.config.classList.remove('show');
+
     app.listado.innerHTML = '';
 
     let url = app.URL_10;
